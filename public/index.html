@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Shibal</title>
+		<meta name="description" content="Private URL shortener" />
+		<link rel="icon" href="./assets/img/favicon.svg" type="image/svg+xml" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<link rel="stylesheet" href="./assets/css/styles.css" />
+	</head>
+	<body>
+		<main class="page-shell">
+			<section class="panel auth-panel" id="auth-view" aria-labelledby="auth-title">
+				<div class="brand-stack">
+					<img src="./assets/img/favicon.svg" alt="" class="brand-mark" />
+					<div>
+						<p class="brand-kicker">Private short links</p>
+						<h1 id="auth-title">Shibal</h1>
+					</div>
+				</div>
+
+				<form class="form-stack" id="auth-form" novalidate>
+					<div class="field-group">
+						<label for="token-input">API token</label>
+						<input
+							id="token-input"
+							name="token"
+							type="password"
+							autocomplete="current-password"
+							placeholder="Enter your token"
+							required
+						/>
+					</div>
+					<button class="button button-primary" id="auth-submit" type="submit">Unlock</button>
+					<p class="message message-error" id="auth-error" role="alert"></p>
+				</form>
+			</section>
+
+			<section class="panel app-panel" id="app-view" aria-labelledby="app-title" hidden>
+				<header class="app-header">
+					<a class="brand-inline" href="/" aria-label="Shibal home">
+						<img src="./assets/img/favicon.svg" alt="" class="brand-mark brand-mark-small" />
+						<span>Shibal</span>
+					</a>
+					<button class="button button-ghost" id="sign-out" type="button">Sign out</button>
+				</header>
+
+				<div class="intro">
+					<h1 id="app-title">Shorten a link</h1>
+					<p>Create compact URLs</p>
+				</div>
+
+				<form class="form-stack" id="shorten-form" novalidate>
+					<div class="field-group">
+						<label for="url-input">Destination URL</label>
+						<div class="input-action">
+							<input
+								id="url-input"
+								name="url"
+								type="text"
+								inputmode="url"
+								autocomplete="url"
+								placeholder="Paste link here"
+								required
+							/>
+							<button class="button button-primary" id="shorten-submit" type="submit">Shorten</button>
+						</div>
+					</div>
+					<p class="message message-error" id="app-error" role="alert"></p>
+				</form>
+
+				<section class="result-strip" id="result-view" aria-live="polite" hidden>
+					<div>
+						<p class="result-label">Short URL</p>
+						<a class="result-link" id="result-link" href="#" target="_blank" rel="noopener noreferrer"></a>
+					</div>
+					<button class="button button-secondary" id="copy-button" type="button">Copy</button>
+				</section>
+			</section>
+		</main>
+
+		<div class="toast" id="toast" role="status" aria-live="polite"></div>
+		<script src="./assets/js/app.js" defer></script>
+	</body>
+</html>
