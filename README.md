@@ -1,4 +1,4 @@
-# Shibal
+# <p style="text-align: center;">Shibal</p>
 
 Private URL shortener on Node.js and Express
 
@@ -7,18 +7,19 @@ Private URL shortener on Node.js and Express
 
 ## Purpose
 
-Shibal creates short links for URLs and stores them in a JSON file without a database. It is built for private use: creating links requires an API token, while following a short link is public
+Shibal creates compact public redirects and stores them in a JSON file. It is built for private use: creating links requires an API token, while opening a short link is public to anyone who has it
 
 ## Features
 
-- Private link creation and public redirects: creating links requires a token, following them does not
+- Private writes and public redirects: creating links requires a token, following links does not
 - Short links with configurable id length
 - No database: links are stored in `data.json`
-- Normalized URL deduplication: re-shortening an already stored URL returns the existing short link
+- URL deduplication: shortening the same normalized URL returns the existing short link
 - Bare URLs are supported: `example.com` is normalized to `https://example.com/`
 - Protocol URLs are supported, including magnet links
 - Unsafe protocols are blocked: `javascript:`, `data:`, `file:`, and similar values
-- Private token gate for the UI and link creation API
+- Token-gated UI for creating links
+- Open Graph/Twitter metadata
 - Atomic `data.json` writes through temp file + rename
 
 ## Deployment
@@ -26,7 +27,9 @@ Shibal creates short links for URLs and stores them in a JSON file without a dat
 Requires Node.js 18+
 
 ```bash
-npm install
+git clone https://github.com/FrostyDeFreeze/shibal
+cd shibal
+npm i
 cp .env.example .env
 npm start
 ```
@@ -63,46 +66,8 @@ API errors use this format:
 }
 ```
 
-### `POST /auth/verify`
-
-Verifies the API token
-
-Requires authorization
-
-Response:
-
-```json
-{ "ok": true }
-```
-
-### `POST /shorten`
-
-Creates a short link or returns the existing short link for the same URL
-
-Requires authorization
-
-Request body:
-
-```json
-{
-	"url": "https://example.com/page"
-}
-```
-
-Response:
-
-```json
-{
-	"url": "https://example.com/page",
-	"short": "aB3",
-	"full": "http://localhost:7000/aB3"
-}
-```
-
-### `GET /:short`
-
-Redirects to the original URL
-
-Public route
-
-If the short link is not found, Shibal returns the HTML `404` page
+| Method | Endpoint       | Access  | Description                                                                  | Body                                    | Response                                                                                     |
+| ------ | -------------- | ------- | ---------------------------------------------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `POST` | `/auth/verify` | Private | Checks that the token is valid                                               | -                                       | `{ "ok": true }`                                                                             |
+| `POST` | `/shorten`     | Private | Creates a short link or returns the existing one for the same normalized URL | `{ "url": "https://example.com/page" }` | `{ "url": "https://example.com/page", "short": "aB3", "full": "http://localhost:7000/aB3" }` |
+| `GET`  | `/:short`      | Public  | Redirects to the original URL                                                | -                                       | `302` redirect, or the HTML `404` page when the short link is not found                      |
