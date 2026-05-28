@@ -7,6 +7,8 @@ const path = require('node:path')
 
 const app = express()
 const DATA_FILE = path.join(__dirname, 'data.json')
+const INDEX_HTML_FILE = path.join(__dirname, 'public', 'index.html')
+const OG_IMAGE_PATH = '/assets/img/og.png'
 const CODE_ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 const MAX_GENERATION_ATTEMPTS = 1_000
 const UNSAFE_PROTOCOLS = new Set(['javascript:', 'data:', 'vbscript:', 'file:', 'about:', 'chrome:', 'view-source:', 'blob:'])
@@ -150,7 +152,78 @@ function hasUnsafeCharacters(value) {
 const { port: PORT, baseUrl: BASE_URL, urlLength: URL_LENGTH, apiToken: API_TOKEN } = readConfig()
 
 app.use(express.json())
-app.use(express.static('public'))
+app.use(express.static(path.join(__dirname, 'public'), { index: false }))
+
+function publicUrl(pathname) {
+	const normalizedPath = pathname.startsWith('/') ? pathname : `/${pathname}`
+	return `${BASE_URL}${normalizedPath}`
+}
+
+function rootUrl() {
+	return `${BASE_URL}/`
+}
+
+function rootSocialMeta() {
+	return {
+		title: 'Shibal',
+		description: 'Private URL shortener',
+		type: 'website',
+		url: rootUrl(),
+		image: publicUrl(OG_IMAGE_PATH)
+	}
+}
+
+function escapeHtml(value) {
+	return String(value)
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;')
+}
+
+function escapeAttribute(value) {
+	return escapeHtml(value).replace(/`/g, '&#96;')
+}
+
+function renderSocialTags(meta) {
+	const title = escapeAttribute(meta.title)
+	const description = escapeAttribute(meta.description)
+	const type = escapeAttribute(meta.type)
+	const url = escapeAttribute(meta.url)
+	const image = escapeAttribute(meta.image)
+
+	return [
+		`<meta property="og:title" content="${title}" />`,
+		`<meta property="og:description" content="${description}" />`,
+		`<meta property="og:type" content="${type}" />`,
+		`<meta property="og:url" content="${url}" />`,
+		`<meta property="og:image" content="${image}" />`,
+		'<meta property="og:image:width" content="512" />',
+		'<meta property="og:image:height" content="512" />',
+		'<meta name="twitter:card" content="summary" />',
+		`<meta name="twitter:title" content="${title}" />`,
+		`<meta name="twitter:description" content="${description}" />`,
+		`<meta name="twitter:image" content="${image}" />`
+	].join('\n\t\t')
+}
+
+function renderIndexHtml(meta) {
+	const title = escapeHtml(meta.title)
+	const description = escapeAttribute(meta.description)
+	const html = fs.readFileSync(INDEX_HTML_FILE, 'utf8')
+	const withTitle = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${title}</title>`)
+	const withDescription = withTitle.replace(
+		/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/,
+		`<meta name="description" content="${description}" />`
+	)
+
+	return withDescription.replace(/(\s*)<\/head>/, `$1${renderSocialTags(meta)}$1</head>`)
+}
+
+function sendIndex(res, meta) {
+	return res.type('html').send(renderIndexHtml(meta))
+}
 
 function load() {
 	if (!fs.existsSync(DATA_FILE)) {
@@ -261,6 +334,10 @@ app.post('/shorten', requireAuth, (req, res) => {
 		console.error(`Error shortening URL: ${e}`)
 		res.status(500).json({ error: 'Unable to shorten URL right now' })
 	}
+})
+
+app.get('/', (_req, res) => {
+	sendIndex(res, rootSocialMeta())
 })
 
 app.get('/:short', (req, res) => {
