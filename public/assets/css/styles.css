@@ -82,6 +82,7 @@ a {
 
 .auth-panel,
 .not-found-panel {
+	position: relative;
 	max-width: 480px;
 }
 
@@ -131,6 +132,12 @@ h1 {
 	justify-content: space-between;
 	gap: 16px;
 	margin-bottom: 34px;
+}
+
+.app-actions {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .brand-inline {
@@ -231,7 +238,8 @@ input:focus {
 
 .button:focus-visible,
 .brand-inline:focus-visible,
-.result-link:focus-visible {
+.result-link:focus-visible,
+.tool-button:focus-visible {
 	outline: 2px solid var(--accent);
 	outline-offset: 3px;
 }
@@ -268,6 +276,43 @@ input:focus {
 .button-ghost:hover:not(:disabled) {
 	border-color: var(--rp-highlight-high);
 	color: var(--rp-text);
+}
+
+.tool-button {
+	width: 36px;
+	height: 36px;
+	padding: 0;
+	border-radius: var(--radius-md);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: transparent;
+	color: var(--rp-subtle);
+	text-decoration: none;
+	cursor: pointer;
+	transition:
+		background-color 150ms ease,
+		color 150ms ease,
+		transform 150ms ease;
+}
+
+.tool-button:hover {
+	background: var(--rp-highlight-med);
+	color: var(--rp-text);
+	transform: translateY(-1px);
+}
+
+.tool-button svg {
+	width: 20px;
+	height: 20px;
+	fill: currentColor;
+	stroke: none;
+}
+
+.auth-github-link {
+	position: absolute;
+	top: 16px;
+	right: 16px;
 }
 
 .button-link {
